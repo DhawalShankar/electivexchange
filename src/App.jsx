@@ -48,13 +48,11 @@ const handleGoogleLogin = async () => {
 
 const saveProfile = async () => {
   try {
-    await addDoc(collection(db, "students"), {
-      ...userProfile,
-      createdAt: serverTimestamp()  // This is used for TTL
-    });
-    
-    setStep("browse");
-  } catch (e) {
+    await addDoc(collection(db, "students"),
+      userProfile);
+    setStep("browse");  
+    }
+    catch (e) {
     console.error("Error adding document: ", e);
   }
 };
@@ -213,7 +211,7 @@ const fetchStudents = async () => {
                     value={userProfile.email}
                     onChange={(e) => setUserProfile({...userProfile, email: e.target.value})}
                     className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:outline-none transition-all"
-                    placeholder="your.email@jiit.ac.in"
+                    placeholder="your.email@mail.jiit.ac.in"
                   />
                 </div>
               </div>
