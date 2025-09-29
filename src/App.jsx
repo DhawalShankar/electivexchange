@@ -190,7 +190,7 @@ const fetchStudents = async () => {
                     value={userProfile.enrollment}
                     onChange={(e) => setUserProfile({...userProfile, enrollment: e.target.value})}
                     className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:outline-none transition-all"
-                    placeholder="21SCSE1234567"
+                    placeholder="23102012"
                   />
                 </div>
               </div>
@@ -226,6 +226,8 @@ const fetchStudents = async () => {
                     onChange={(e) => setUserProfile({...userProfile, semester: e.target.value})}
                     className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:outline-none transition-all"
                   >
+                    <option>3rd</option>
+                    <option>4th</option>
                     <option>5th</option>
                     <option>6th</option>
                     <option>7th</option>
