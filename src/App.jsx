@@ -1,5 +1,12 @@
 import React, { useState } from 'react';
 import { Heart, X, Settings, User, Clock, Users, BookOpen, Zap, ArrowUp, ArrowDown, MessageCircle, Phone, Mail, GripVertical, Plus, Trash2 } from 'lucide-react';
+import { signInWithPopup } from "firebase/auth";
+import { auth, googleProvider } from "./firebase";
+import { db } from "./firebase";
+import { collection, addDoc, getDocs } from "firebase/firestore";
+import { useEffect } from "react";  // make sure at top
+import { serverTimestamp } from "firebase/firestore";
+
 
 const ElectiveXChange = () => {
   const [step, setStep] = useState('profile'); // 'profile' or 'browse'
@@ -16,101 +23,49 @@ const ElectiveXChange = () => {
 
   const [tempElective, setTempElective] = useState('');
   const [draggedIndex, setDraggedIndex] = useState(null);
+  const [allStudents, setAllStudents] = useState([]);
+  useEffect(() => {
+  if (step === "browse") {
+    fetchStudents();
+  }
+}, [step]);
 
-  // All available students with their electives
-  const allStudents = [
-    {
-      id: 1,
-      name: "Rahul Sharma",
-      enrollment: "21SCSE1234567",
-      currentElective: "Machine Learning",
-      wantedElectives: ["Blockchain Technology", "Cloud Computing", "Cyber Security"],
-      semester: "6th",
-      branch: "CSE",
-      avatar: "RS",
-      timePosted: "2 hours ago",
-      phone: "+91 98765 43210",
-      email: "rahul.sharma@jiit.ac.in"
-    },
-    {
-      id: 2,
-      name: "Priya Malhotra",
-      enrollment: "21SCSE1234568",
-      currentElective: "Cloud Computing",
-      wantedElectives: ["Machine Learning", "Data Science"],
-      semester: "6th",
-      branch: "CSE",
-      avatar: "PM",
-      timePosted: "5 hours ago",
-      phone: "+91 98765 43211",
-      email: "priya.malhotra@jiit.ac.in"
-    },
-    {
-      id: 3,
-      name: "Arjun Verma",
-      enrollment: "21SCSE1234569",
-      currentElective: "Cyber Security",
-      wantedElectives: ["Machine Learning", "Blockchain Technology"],
-      semester: "6th",
-      branch: "CSE",
-      avatar: "AV",
-      timePosted: "1 day ago",
-      phone: "+91 98765 43212",
-      email: "arjun.verma@jiit.ac.in"
-    },
-    {
-      id: 4,
-      name: "Sneha Kapoor",
-      enrollment: "21SCSE1234570",
-      currentElective: "Blockchain Technology",
-      wantedElectives: ["Cloud Computing", "Data Science"],
-      semester: "6th",
-      branch: "CSE",
-      avatar: "SK",
-      timePosted: "3 hours ago",
-      phone: "+91 98765 43213",
-      email: "sneha.kapoor@jiit.ac.in"
-    },
-    {
-      id: 5,
-      name: "Vikram Singh",
-      enrollment: "21SCSE1234571",
-      currentElective: "Data Science",
-      wantedElectives: ["Machine Learning", "Cyber Security"],
-      semester: "6th",
-      branch: "CSE",
-      avatar: "VS",
-      timePosted: "6 hours ago",
-      phone: "+91 98765 43214",
-      email: "vikram.singh@jiit.ac.in"
-    },
-    {
-      id: 6,
-      name: "Ananya Gupta",
-      enrollment: "21SCSE1234572",
-      currentElective: "IoT Systems",
-      wantedElectives: ["Machine Learning", "Cloud Computing"],
-      semester: "6th",
-      branch: "CSE",
-      avatar: "AG",
-      timePosted: "4 hours ago",
-      phone: "+91 98765 43215",
-      email: "ananya.gupta@jiit.ac.in"
-    },
-    {
-      id: 7,
-      name: "Karan Mehta",
-      enrollment: "21SCSE1234573",
-      currentElective: "Blockchain Technology",
-      wantedElectives: ["Data Science", "Machine Learning"],
-      semester: "6th",
-      branch: "CSE",
-      avatar: "KM",
-      timePosted: "7 hours ago",
-      phone: "+91 98765 43216",
-      email: "karan.mehta@jiit.ac.in"
-    }
-  ];
+const handleGoogleLogin = async () => {
+  try {
+    const result = await signInWithPopup(auth, googleProvider);
+    const user = result.user;
+    setUserProfile({
+      ...userProfile,
+      name: user.displayName,
+      email: user.email,
+    });
+  } catch (error) {
+    console.error("Login Error:", error);
+  }
+};
+
+// Save user profile
+
+const saveProfile = async () => {
+  try {
+    await addDoc(collection(db, "students"), {
+      ...userProfile,
+      createdAt: serverTimestamp()  // This is used for TTL
+    });
+    
+    setStep("browse");
+  } catch (e) {
+    console.error("Error adding document: ", e);
+  }
+};
+// Fetch students
+const fetchStudents = async () => {
+  const querySnapshot = await getDocs(collection(db, "students"));
+  const students = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  console.log("Students in Firestore:", students); // check in console
+  setAllStudents(students);
+};
+
 
   const [contacted, setContacted] = useState([]);
 
@@ -294,7 +249,7 @@ const ElectiveXChange = () => {
 
               {/* Current Elective */}
               <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-2xl border-2 border-green-200">
-                <label className="block text-sm font-bold text-gray-900 mb-3 flex items-center space-x-2">
+                <label className="text-sm font-bold text-gray-900 mb-3 flex items-center space-x-2">
                   <BookOpen className="w-5 h-5 text-green-600" />
                   <span>Current Elective (What You Have) *</span>
                 </label>
@@ -309,7 +264,7 @@ const ElectiveXChange = () => {
 
               {/* Wanted Electives with Priority */}
               <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-2xl border-2 border-purple-200">
-                <label className="block text-sm font-bold text-gray-900 mb-3 flex items-center space-x-2">
+                <label className="flex text-sm font-bold text-gray-900 mb-3 items-center space-x-2">
                   <Heart className="w-5 h-5 text-purple-600" />
                   <span>Wanted Electives (In Priority Order) *</span>
                 </label>
@@ -364,19 +319,31 @@ const ElectiveXChange = () => {
                   </div>
                 )}
               </div>
+              <button
+                onClick={handleGoogleLogin}
+                className="w-full py-3 bg-red-500 text-white rounded-xl font-semibold hover:bg-red-600 transition-all mb-4"
+              >
+                Continue with Google
+              </button>
 
               {/* Submit Button */}
               <button
-                onClick={() => canSubmit() && setStep('browse')}
-                disabled={!canSubmit()}
-                className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${
-                  canSubmit()
-                    ? 'bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white hover:shadow-2xl hover:scale-[1.02]'
-                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                }`}
-              >
-                Find My Matches
-              </button>
+                    onClick={async () => {
+                      if (!canSubmit()) return;
+                      await saveProfile(); // save to Firestore first
+                      await fetchStudents(); // fetch all students after saving
+                      setStep('browse');    // now go to browse
+                    }}
+                    disabled={!canSubmit()}
+                    className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${
+                      canSubmit()
+                        ? 'bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white hover:shadow-2xl hover:scale-[1.02]'
+                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    }`}
+                  >
+                    Find My Matches
+                  </button>
+
             </div>
           </div>
         </div>
