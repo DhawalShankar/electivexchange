@@ -270,7 +270,7 @@ const fetchStudents = async () => {
                 </label>
                 <p className="text-xs text-gray-600 mb-4">Add electives in order of preference. Drag to reorder.</p>
                 
-                <div className="flex space-x-2 mb-4">
+                <div className="flex flex-wrap space-x-2 mb-4">
                   <input
                     type="text"
                     value={tempElective}
