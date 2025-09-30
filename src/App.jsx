@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import { Heart, X, Settings, User, Clock, Users, BookOpen, Zap, ArrowUp, ArrowDown, MessageCircle, Phone, Mail, GripVertical, Plus, Trash2 } from 'lucide-react';
 import { signInWithPopup } from "firebase/auth";
-import { auth, googleProvider } from "./firebase";
-import { db } from "./firebase";
+import { auth, googleProvider,db } from "./firebase";
 import { collection, addDoc, getDocs } from "firebase/firestore";
 import { useEffect } from "react";  // make sure at top
-import { serverTimestamp } from "firebase/firestore";
+import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 
 
 const ElectiveXChange = () => {
@@ -15,7 +14,7 @@ const ElectiveXChange = () => {
     enrollment: '',
     phone: '',
     email: '',
-    semester: '6th',
+    semester: '4th',
     branch: 'CSE',
     currentElective: '',
     wantedElectives: []
@@ -46,16 +45,25 @@ const handleGoogleLogin = async () => {
 
 // Save user profile
 
+
 const saveProfile = async () => {
   try {
-    await addDoc(collection(db, "students"),
-      userProfile);
-    setStep("browse");  
-    }
-    catch (e) {
-    console.error("Error adding document: ", e);
+    const user = auth.currentUser;  // get logged-in user
+    if (!user) throw new Error("User not logged in");
+
+    await setDoc(doc(db, "students", user.uid), {
+      ...userProfile,
+      email: user.email,         // optional: store email
+      uid: user.uid,             // store uid for reference
+      createdAt: serverTimestamp()
+    });
+
+    setStep("browse");
+  } catch (e) {
+    console.error("Error saving profile: ", e);
   }
 };
+
 // Fetch students
 const fetchStudents = async () => {
   const querySnapshot = await getDocs(collection(db, "students"));
@@ -144,209 +152,230 @@ const fetchStudents = async () => {
 
   if (step === 'profile') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500">
-        {/* Header */}
-        <div className="bg-white/10 backdrop-blur-lg border-b border-white/20">
-          <div className="max-w-4xl mx-auto px-4 py-4">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-xl flex items-center justify-center shadow-lg">
-                <Zap className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-white tracking-tight">ElectiveXChange</h1>
-                <p className="text-xs text-white/80">Jaypee Institute of Information Technology</p>
+      <div>
+        <div className="min-h-screen bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500">
+          {/* Header */}
+          <div className="bg-white/10 backdrop-blur-lg border-b border-white/20">
+            <div className="max-w-4xl mx-auto px-4 py-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-xl flex items-center justify-center shadow-lg">
+                  <Zap className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold text-white tracking-tight">ElectiveXChange</h1>
+                  <p className="text-xs text-white/80">Jaypee Institute of Information Technology</p>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Profile Form */}
-        <div className="max-w-4xl mx-auto px-4 py-8">
-          <div className="bg-white rounded-3xl shadow-2xl p-8">
-            <div className="mb-6">
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">Set Up Your Profile</h2>
-              <p className="text-gray-600">Enter your details to find the perfect elective exchange</p>
-            </div>
-
-            <div className="space-y-6">
-              {/* Basic Info */}
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Full Name *</label>
-                  <input
-                    type="text"
-                    value={userProfile.name}
-                    onChange={(e) => setUserProfile({...userProfile, name: e.target.value})}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:outline-none transition-all"
-                    placeholder="Enter your name"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Enrollment Number *</label>
-                  <input
-                    type="text"
-                    value={userProfile.enrollment}
-                    onChange={(e) => setUserProfile({...userProfile, enrollment: e.target.value})}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:outline-none transition-all"
-                    placeholder="23102012"
-                  />
-                </div>
+          {/* Profile Form */}
+          <div className="max-w-4xl mx-auto px-4 py-8">
+            <div className="bg-white rounded-3xl shadow-2xl p-8">
+              <div className="mb-6">
+                <h2 className="text-3xl font-bold text-gray-900 mb-2">Set Up Your Profile</h2>
+                <p className="text-gray-600">Enter your details to find the perfect elective exchange</p>
               </div>
 
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Phone Number *</label>
-                  <input
-                    type="tel"
-                    value={userProfile.phone}
-                    onChange={(e) => setUserProfile({...userProfile, phone: e.target.value})}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:outline-none transition-all"
-                    placeholder="+91 98765 43210"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Email</label>
-                  <input
-                    type="email"
-                    value={userProfile.email}
-                    onChange={(e) => setUserProfile({...userProfile, email: e.target.value})}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:outline-none transition-all"
-                    placeholder="your.email@mail.jiit.ac.in"
-                  />
-                </div>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Semester</label>
-                  <select
-                    value={userProfile.semester}
-                    onChange={(e) => setUserProfile({...userProfile, semester: e.target.value})}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:outline-none transition-all"
-                  >
-                    <option>3rd</option>
-                    <option>4th</option>
-                    <option>5th</option>
-                    <option>6th</option>
-                    <option>7th</option>
-                    <option>8th</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Branch</label>
-                  <select
-                    value={userProfile.branch}
-                    onChange={(e) => setUserProfile({...userProfile, branch: e.target.value})}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:outline-none transition-all"
-                  >
-                    <option>CSE</option>
-                    <option>IT</option>
-                    <option>ECE</option>
-                    <option>BioTech</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Current Elective */}
-              <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-2xl border-2 border-green-200">
-                <label className="text-sm font-bold text-gray-900 mb-3 flex items-center space-x-2">
-                  <BookOpen className="w-5 h-5 text-green-600" />
-                  <span>Current Elective (What You Have) *</span>
-                </label>
-                <input
-                  type="text"
-                  value={userProfile.currentElective}
-                  onChange={(e) => setUserProfile({...userProfile, currentElective: e.target.value})}
-                  className="w-full px-4 py-3 border-2 border-green-300 rounded-xl focus:border-green-500 focus:outline-none transition-all bg-white"
-                  placeholder="e.g., Machine Learning"
-                />
-              </div>
-
-              {/* Wanted Electives with Priority */}
-              <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-2xl border-2 border-purple-200">
-                <label className="flex text-sm font-bold text-gray-900 mb-3 items-center space-x-2">
-                  <Heart className="w-5 h-5 text-purple-600" />
-                  <span>Wanted Electives (In Priority Order) *</span>
-                </label>
-                <p className="text-xs text-gray-600 mb-4">Add electives in order of preference. Drag to reorder.</p>
-                
-                <div className="flex flex-wrap space-x-2 mb-4">
-                  <input
-                    type="text"
-                    value={tempElective}
-                    onChange={(e) => setTempElective(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && addWantedElective()}
-                    className="flex-1 px-4 py-3 border-2 border-purple-300 rounded-xl focus:border-purple-500 focus:outline-none transition-all bg-white"
-                    placeholder="e.g., Cloud Computing"
-                  />
-                  <button
-                    onClick={addWantedElective}
-                    className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl font-semibold hover:from-purple-600 hover:to-pink-600 transition-all flex items-center space-x-2"
-                  >
-                    <Plus className="w-5 h-5" />
-                    <span>Add</span>
-                  </button>
-                </div>
-
-                {userProfile.wantedElectives.length > 0 && (
-                  <div className="space-y-2">
-                    {userProfile.wantedElectives.map((elective, index) => (
-                      <div
-                        key={index}
-                        draggable
-                        onDragStart={() => handleDragStart(index)}
-                        onDragOver={(e) => handleDragOver(e, index)}
-                        onDragEnd={handleDragEnd}
-                        className={`bg-white p-4 rounded-xl border-2 border-purple-200 flex items-center justify-between cursor-move hover:border-purple-400 transition-all ${
-                          draggedIndex === index ? 'opacity-50' : ''
-                        }`}
-                      >
-                        <div className="flex items-center space-x-3 flex-1">
-                          <GripVertical className="w-5 h-5 text-gray-400" />
-                          <div className={`w-8 h-8 bg-gradient-to-br ${getPriorityColor(index)} rounded-lg flex items-center justify-center text-white font-bold text-sm shadow-lg`}>
-                            {index + 1}
-                          </div>
-                          <span className="font-semibold text-gray-900">{elective}</span>
-                        </div>
-                        <button
-                          onClick={() => removeWantedElective(index)}
-                          className="p-2 hover:bg-red-100 rounded-lg transition-all group"
-                        >
-                          <Trash2 className="w-4 h-4 text-gray-400 group-hover:text-red-600" />
-                        </button>
-                      </div>
-                    ))}
+              <div className="space-y-6">
+                {/* Basic Info */}
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Full Name *</label>
+                    <input
+                      type="text"
+                      value={userProfile.name}
+                      onChange={(e) => setUserProfile({...userProfile, name: e.target.value})}
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:outline-none transition-all"
+                      placeholder="Enter your name"
+                    />
                   </div>
-                )}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Enrollment Number *</label>
+                    <input
+                      type="text"
+                      value={userProfile.enrollment}
+                      onChange={(e) => setUserProfile({...userProfile, enrollment: e.target.value})}
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:outline-none transition-all"
+                      placeholder="23102012"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Phone Number *</label>
+                    <input
+                      type="tel"
+                      value={userProfile.phone}
+                      onChange={(e) => setUserProfile({...userProfile, phone: e.target.value})}
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:outline-none transition-all"
+                      placeholder="+91 98765 43210"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Email</label>
+                    <input
+                      type="email"
+                      value={userProfile.email}
+                      onChange={(e) => setUserProfile({...userProfile, email: e.target.value})}
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:outline-none transition-all"
+                      placeholder="your.email@mail.jiit.ac.in"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Semester</label>
+                    <select
+                      value={userProfile.semester}
+                      onChange={(e) => setUserProfile({...userProfile, semester: e.target.value})}
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:outline-none transition-all"
+                    >
+                      <option>3rd</option>
+                      <option>4th</option>
+                      <option>5th</option>
+                      <option>6th</option>
+                      <option>7th</option>
+                      <option>8th</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Branch</label>
+                    <select
+                      value={userProfile.branch}
+                      onChange={(e) => setUserProfile({...userProfile, branch: e.target.value})}
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:outline-none transition-all"
+                    >
+                      <option>CSE</option>
+                      <option>IT</option>
+                      <option>ECE</option>
+                      <option>BioTech</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Current Elective */}
+                <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-2xl border-2 border-green-200">
+                  <label className="text-sm font-bold text-gray-900 mb-3 flex items-center space-x-2">
+                    <BookOpen className="w-5 h-5 text-green-600" />
+                    <span>Current Elective (What You Have) *</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={userProfile.currentElective}
+                    onChange={(e) => setUserProfile({...userProfile, currentElective: e.target.value})}
+                    className="w-full px-4 py-3 border-2 border-green-300 rounded-xl focus:border-green-500 focus:outline-none transition-all bg-white"
+                    placeholder="e.g., Machine Learning"
+                  />
+                </div>
+
+                {/* Wanted Electives with Priority */}
+                <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-2xl border-2 border-purple-200">
+                  <label className="flex text-sm font-bold text-gray-900 mb-3 items-center space-x-2">
+                    <Heart className="w-5 h-5 text-purple-600" />
+                    <span>Wanted Electives (In Priority Order) *</span>
+                  </label>
+                  <p className="text-xs text-gray-600 mb-4">Add electives in order of preference. Drag to reorder.</p>
+                  
+                  <div className="flex flex-wrap space-x-2 mb-4">
+                    <input
+                      type="text"
+                      value={tempElective}
+                      onChange={(e) => setTempElective(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && addWantedElective()}
+                      className="flex-1 px-4 py-3 border-2 border-purple-300 rounded-xl focus:border-purple-500 focus:outline-none transition-all bg-white"
+                      placeholder="e.g., Cloud Computing"
+                    />
+                    <button
+                      onClick={addWantedElective}
+                      className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl font-semibold hover:from-purple-600 hover:to-pink-600 transition-all flex items-center space-x-2"
+                    >
+                      <Plus className="w-5 h-5" />
+                      <span>Add</span>
+                    </button>
+                  </div>
+
+                  {userProfile.wantedElectives.length > 0 && (
+                    <div className="space-y-2">
+                      {userProfile.wantedElectives.map((elective, index) => (
+                        <div
+                          key={index}
+                          draggable
+                          onDragStart={() => handleDragStart(index)}
+                          onDragOver={(e) => handleDragOver(e, index)}
+                          onDragEnd={handleDragEnd}
+                          className={`bg-white p-4 rounded-xl border-2 border-purple-200 flex items-center justify-between cursor-move hover:border-purple-400 transition-all ${
+                            draggedIndex === index ? 'opacity-50' : ''
+                          }`}
+                        >
+                          <div className="flex items-center space-x-3 flex-1">
+                            <GripVertical className="w-5 h-5 text-gray-400" />
+                            <div className={`w-8 h-8 bg-gradient-to-br ${getPriorityColor(index)} rounded-lg flex items-center justify-center text-white font-bold text-sm shadow-lg`}>
+                              {index + 1}
+                            </div>
+                            <span className="font-semibold text-gray-900">{elective}</span>
+                          </div>
+                          <button
+                            onClick={() => removeWantedElective(index)}
+                            className="p-2 hover:bg-red-100 rounded-lg transition-all group"
+                          >
+                            <Trash2 className="w-4 h-4 text-gray-400 group-hover:text-red-600" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <button
+                  onClick={handleGoogleLogin}
+                  className="w-full py-3 bg-red-500 text-white rounded-xl font-semibold hover:bg-red-600 transition-all mb-4"
+                >
+                  Continue with Google
+                </button>
+
+                {/* Submit Button */}
+                <button
+                      onClick={async () => {
+                        if (!canSubmit()) return;
+                        await saveProfile(); // save to Firestore first
+                        await fetchStudents(); // fetch all students after saving
+                        setStep('browse');    // now go to browse
+                      }}
+                      disabled={!canSubmit()}
+                      className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${
+                        canSubmit()
+                          ? 'bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white hover:shadow-2xl hover:scale-[1.02]'
+                          : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                      }`}
+                    >
+                      Find My Matches
+                    </button>
+
               </div>
-              <button
-                onClick={handleGoogleLogin}
-                className="w-full py-3 bg-red-500 text-white rounded-xl font-semibold hover:bg-red-600 transition-all mb-4"
-              >
-                Continue with Google
-              </button>
-
-              {/* Submit Button */}
-              <button
-                    onClick={async () => {
-                      if (!canSubmit()) return;
-                      await saveProfile(); // save to Firestore first
-                      await fetchStudents(); // fetch all students after saving
-                      setStep('browse');    // now go to browse
-                    }}
-                    disabled={!canSubmit()}
-                    className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${
-                      canSubmit()
-                        ? 'bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white hover:shadow-2xl hover:scale-[1.02]'
-                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    }`}
-                  >
-                    Find My Matches
-                  </button>
-
             </div>
           </div>
+           <footer className="text-center  text-white text-sm font-bold py-6
+       bg-white/10 backdrop-blur-lg border-b border-white/20  ">
+            Made with <span className="text-red-400">♥</span> by Dhawal
+          </footer>
+
+          {/* Floating Report Button */}
+         <button
+  onClick={() => window.location.href = "mailto:dhawalworksgreat@gmail.com?subject=ElectiveXChange%20Issue&body=Hi%20Dhawal,%0A%0AI%20want%20to%20report%20a%20problem%20with..."}
+  className="fixed right-[-85px] top-1/2 -translate-y-1/2 -rotate-90
+             px-8 py-3 text-lg font-semibold tracking-wide
+             bg-white/20 backdrop-blur-lg text-gray-100
+             border border-white/30 shadow-xl rounded-t-xl
+             hover:bg-white/30 hover:text-white transition-all"
+>
+  Report a Problem
+</button>
+
         </div>
+       
+
       </div>
     );
   }
@@ -503,18 +532,42 @@ const fetchStudents = async () => {
                           }`}
                         >
                           <MessageCircle className="w-4 h-4" />
-                          <span>{isContacted ? 'Contacted' : 'Contact Now'}</span>
+                          <span>{isContacted ? 'Swapped' : 'Swap Now'}</span>
                         </button>
                       </div>
                     </div>
+                    
                   </div>
+                  
                 </div>
               );
             })}
           </div>
         )}
+
       </div>
+      
+        {/* Footer */}
+       <footer className="text-center  text-white text-sm font-bold py-6
+       bg-white/10 backdrop-blur-lg border-b border-white/20 ">
+            Made with <span className="text-red-400">♥</span> by Dhawal
+          </footer>
+
+          {/* Floating Report Button */}
+         <button
+  onClick={() => window.location.href = "mailto:dhawalworksgreat@gmail.com?subject=ElectiveXChange%20Issue&body=Hi%20Dhawal,%0A%0AI%20want%20to%20report%20a%20problem%20with..."}
+  className="fixed right-[-85px] top-1/2 -translate-y-1/2 -rotate-90
+             px-8 py-3 text-lg font-semibold tracking-wide
+             bg-white/20 backdrop-blur-lg text-gray-100
+             border border-white/30 shadow-xl rounded-t-xl
+             hover:bg-white/30 hover:text-white transition-all rounded-2xl"
+>
+  Report a Problem
+</button>
+
     </div>
+    
+  
   );
 };
 
