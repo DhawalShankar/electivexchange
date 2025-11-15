@@ -527,18 +527,23 @@ const fetchStudents = async () => {
                         </div>
 
                         <button
-                          onClick={() => setContacted([...contacted, student.id])}
-                          disabled={isContacted}
-                          className={`px-6 py-3 rounded-xl font-semibold transition-all flex items-center space-x-2 shadow-lg ${
-                            isContacted
-                              ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                              : 'bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white'
-                          }`}
-                        >
-                          <MessageCircle className="w-4 h-4" />
-                          <span>{isContacted ? 'Swapped' : 'Swap Now'}</span>
-                        </button>
-                      </div>
+                              onClick={() => {
+                                const phone = student.phone.replace(/\D/g, ''); // Remove non-digit characters
+                                const whatsappURL = `https://wa.me/${phone}`;
+                                window.open(whatsappURL, '_blank'); // Opens in new tab
+                                setContacted([...contacted, student.id]);
+                              }}
+                              disabled={isContacted}
+                              className={`px-6 py-3 rounded-xl font-semibold transition-all flex items-center space-x-2 shadow-lg ${
+                                isContacted
+                                  ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                                  : 'bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white'
+                              }`}
+                            >
+                              <MessageCircle className="w-4 h-4" />
+                              <span>{isContacted ? 'Contacted' : 'Message'}</span>
+                            </button>
+                                </div>
                     </div>
                     
                   </div>
