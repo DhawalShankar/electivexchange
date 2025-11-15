@@ -170,7 +170,7 @@ const ProfileSetupPage = ({ user, onProfileCreated }) => {
 
             {/* Current Elective */}
             <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-2xl border-2 border-green-200">
-              <label className="text-sm font-bold text-gray-900 mb-3 flex items-center space-x-2">
+              <label className="text-sm font-bold text-gray-900 mb-3 flex  items-center space-x-2">
                 <BookOpen className="w-5 h-5 text-green-600" />
                 <span>Current Elective (What You Have) *</span>
               </label>
