@@ -1,94 +1,83 @@
-Here’s a polished **README.md** draft for your redesigned system:
+# **Elective Exchange — By a JIIT Student, For JIIT Students**
+
+Elective registration at JIIT often becomes chaotic — scattered WhatsApp messages, last-minute panic, and endless scrolling.
+**Elective Exchange** is my small effort to bring clarity and calm to this process.
+
+Built with care for my own campus community, this platform helps students find **perfect 2-way elective swap matches** with zero noise and zero confusion.
 
 ---
 
-# 🎯 Elective Exchange – Profile-First Matching
+## ⭐ **Why I Built This**
 
-A smart, student-first platform that helps you **swap electives seamlessly**.
-No clutter. No waiting. Just **perfect 2-way matches**.
+Every semester I saw friends stressed, running around, trying to swap subjects.
+I wanted to create something simple, elegant, and genuinely useful — something that respects everyone's time.
 
----
+So I built a system where:
 
-## 🌟 How It Works
+* You set your preferences once
+* The platform does the matching
+* And you instantly see the right people to contact
 
-### **Step 1: Profile Setup**
-
-Set up your profile once and let the system do the work:
-
-* **Enter your details**: Name, enrollment, phone, email
-* **Current elective**: The subject you already have
-* **Wanted electives**: Add multiple subjects you’d like to switch into
-* **Priority ordering**: Drag and drop to reorder your preferences
-
-  * 🥇 **#1 (Gold)** – Highest priority
-  * 🥈 **#2 (Blue)** – Second priority
-  * 🥉 **#3 (Purple)** – Third priority
-  * …and so on
+A small contribution, but made with sincerity.
 
 ---
 
-### **Step 2: Browse Perfect Matches**
+## 🌟 **Key Features**
 
-Once your profile is ready, you’ll only see **students who are a 2-way fit**:
+### **Profile-First Matching**
 
-1. They have one of **your wanted electives**
-2. They want **your current elective**
+* Name, enrollment, phone, email
+* Current elective
+* Multiple wanted electives
+* Drag-and-drop priority ranking
 
-💡 **Sorted by your priorities** – students with your #1 wanted elective appear first!
+### **Perfect Mutual Fit**
 
-✅ **Contact details shown instantly** (phone & email)
-✅ **One-click contact tracking** – mark who you’ve already reached out to
+You only see students who:
 
----
+* Have an elective you want
+* Want the elective you have
 
-## ✨ Key Features
+Sorted sharply according to your priority list.
 
-* 🎨 **Drag & drop priority** – reorder your wanted electives anytime
-* 🏷 **Priority badges** – gold, blue, purple, etc. for quick recognition
-* 🤝 **Perfect match algorithm** – shows only **mutual exchange possibilities**
-* 📞 **Direct contact info** – skip the waiting, connect instantly
-* ⚙️ **Profile editing** – update your details anytime in settings
+### **Instant Contact**
 
----
+* Phone & email shown
 
-## 🚀 Why It’s Better
+### **Built for Smooth Usage**
 
-Instead of scrolling through endless lists, you:
-
-* **Set your preferences once**
-* **See only perfect matches**
-* **Contact directly**
-* **Save time & effort**
+* Fast, clean UI
+* Realtime updates via Firestore
+* Mobile-friendly
+* No clutter — just what matters
 
 ---
 
-## 🛠 Tech Stack (if applicable)
+## 🛠 **Tech Stack**
 
-* Frontend: React + TailwindCSS
-* Backend: Node.js / Express (or specify your setup)
-* Database: MongoDB / PostgreSQL
-* Authentication: JWT / OAuth
-
----
-
-## 📌 Roadmap
-
-* [ ] Smart notifications when a new perfect match appears
-* [ ] Advanced filters (year, department, etc.)
-* [ ] In-app messaging instead of external contact
+* **React**
+* **TailwindCSS**
+* **Firebase Authentication**
+* **Firestore Database**
+* **Vercel Hosting**
 
 ---
 
-## 🤝 Contributing
+## 🔗 **Live Platform**
 
-Want to improve this project? Fork it, make changes, and send a pull request.
-
----
-
-## 📜 License
-
-MIT License – free to use, modify, and share.
+[https://electivexchange.vercel.app/](https://electivexchange.vercel.app/)
 
 ---
 
-Would you like me to make this **student-facing** (simple and casual, like an onboarding guide) or **developer-facing** (setup instructions, code usage, stack details)?
+## 💛 **A Note**
+
+If this helps even one student breathe easier during elective season, I’ll consider the project a success.
+Please use it, share it, and stay cool.
+
+---
+
+## 📜 **License**
+
+MIT License
+
+---
