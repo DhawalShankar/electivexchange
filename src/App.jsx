@@ -5,7 +5,7 @@ import { auth, googleProvider,db } from "./firebase";
 import { collection, addDoc, getDocs } from "firebase/firestore";
 import { useEffect } from "react";  // make sure at top
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
-
+import { Analytics } from "@vercel/analytics/next"
 
 const ElectiveXChange = () => {
   const [step, setStep] = useState('profile'); // 'profile' or 'browse'
@@ -154,7 +154,7 @@ const fetchStudents = async () => {
     return (
      
       <div>
-       
+       <Analytics />
         <div className="min-h-screen bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500">
           {/* Header */}
           <div className="bg-white/10 backdrop-blur-lg border-b border-white/20">
@@ -384,7 +384,7 @@ const fetchStudents = async () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500">
-   
+   <Analytics />
       {/* Header */}
       <div className="bg-white/10 backdrop-blur-lg border-b border-white/20 sticky top-0 z-20">
         <div className="max-w-7xl mx-auto px-4 py-4">
