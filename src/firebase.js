@@ -4,7 +4,7 @@ import { getFirestore } from "firebase/firestore";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyANokOmqe-E-YnlxZzxaxBkUk5QgxUvrQI",
+  apiKey: import.meta.env.VITE_API_KEY,
   authDomain: "electivexchange.firebaseapp.com",
   projectId: "electivexchange",
   storageBucket: "electivexchange.firebasestorage.app",
