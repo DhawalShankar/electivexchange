@@ -13,6 +13,7 @@ const ProfileEditPage = ({ user, existingProfile, onProfileUpdated, onCancel }) 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  const [showWarnings, setShowWarnings] = useState(false);
 
   const canSubmit = () => {
   const emailValid = /\S+@\S+\.\S+/.test(profile.email);   // basic email check
@@ -31,8 +32,12 @@ const ProfileEditPage = ({ user, existingProfile, onProfileUpdated, onCancel }) 
 
 
   const handleSubmit = async () => {
-    if (!canSubmit()) return;
+   if (!canSubmit()) {
+    setShowWarnings(true);
+    return;
+  }
     
+    setShowWarnings(false);
     setLoading(true);
     setError('');
 
@@ -91,47 +96,80 @@ const ProfileEditPage = ({ user, existingProfile, onProfileUpdated, onCancel }) 
                 <input
                   type="text"
                   value={profile.enrollment}
-                  onChange={(e) => setProfile({...profile, enrollment: e.target.value})}
+                  onChange={(e) => {setProfile({...profile, enrollment: e.target.value}); showWarnings(true);}}
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:outline-none transition-all"
                   placeholder="23102012"
                 />
+                 {showWarnings && profile.enrollment.length < 8 && (
+    <p className="text-red-600 text-sm mt-1">Enrollment is invalid.</p>
+  )}
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Semester</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Campus</label>
                 <select
                   value={profile.campus}
-                  onChange={(e) => setProfile({...profile, campus: e.target.value})}
+                  onChange={(e) => {setProfile({...profile, campus: e.target.value});setShowWarnings(true);}}
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:outline-none transition-all"
                 >
             <option value="">Select</option>
             <option value="62">62</option>
             <option value="128">128</option>
                 </select>
+                {showWarnings && !profile.campus && (
+  <p className="text-red-600 text-sm mt-1">Select your campus.</p>
+)}
+
               </div>
             </div>
 
             <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Phone Number *</label>
-                <input
-                  type="tel"
-                  value={profile.phone}
-                  onChange={(e) => setProfile({...profile, phone: e.target.value})}
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:outline-none transition-all"
-                  placeholder="+91 98765 43210"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Email</label>
-                <input
-                  type="email"
-                  value={profile.email}
-                  onChange={(e) => setProfile({...profile, email: e.target.value})}
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:outline-none transition-all"
-                  placeholder="your.email@mail.jiit.ac.in"
-                />
-              </div>
-            </div>
+
+  {/* PHONE */}
+  <div>
+    <label className="block text-sm font-semibold text-gray-700 mb-2">
+      Phone Number *
+    </label>
+
+    <input
+      type="tel"
+      value={profile.phone}
+      onChange={(e) =>{ setProfile({ ...profile, phone: e.target.value }); setShowWarnings(true);}}
+      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl 
+                focus:border-purple-500 focus:outline-none transition-all"
+      placeholder="9876543210"
+    />
+
+    {/* Warning MUST be inside same DIV */}
+    {showWarnings && profile.phone.length !== 10 && (
+      <p className="text-red-600 text-sm mt-1">
+        Phone must be 10 digits.
+      </p>
+    )}
+  </div>
+
+  {/* EMAIL */}
+  <div>
+    <label className="block text-sm font-semibold text-gray-700 mb-2">
+      Email
+    </label>
+
+    <input
+      type="email"
+      value={profile.email}
+      onChange={(e) => setProfile({ ...profile, email: e.target.value })}
+      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl 
+                focus:border-purple-500 focus:outline-none transition-all"
+      placeholder="your.email@mail.jiit.ac.in"
+    />
+
+    {showWarnings && !/\S+@\S+\.\S+/.test(profile.email) && (
+      <p className="text-red-600 text-sm mt-1">
+        Enter a valid email.
+      </p>
+    )}
+  </div>
+
+</div>
 
             <div className="grid md:grid-cols-2 gap-4">
               <div>
@@ -160,6 +198,11 @@ const ProfileEditPage = ({ user, existingProfile, onProfileUpdated, onCancel }) 
                   <option>IT</option>
                   <option>ECE</option>
                   <option>BioTech</option>
+                  <option>ECS</option>
+                  <option>VLSI</option>
+                  <option>ACT</option>
+                  <option>MnC</option>
+                  <option>Other</option>
                 </select>
               </div>
             </div>

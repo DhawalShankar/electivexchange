@@ -9,6 +9,7 @@ import { databaseService } from '../services/databaseService';
 import { authService } from '../services/authService';
 
 const ProfileSetupPage = ({ user, onProfileCreated }) => {
+  const [showWarnings, setShowWarnings] = useState(false);
   const [profile, setProfile] = useState({
     name: user.displayName || '',
     enrollment: '',
@@ -39,22 +40,25 @@ const ProfileSetupPage = ({ user, onProfileCreated }) => {
   );
 };
 
-
   const handleSubmit = async () => {
-    if (!canSubmit()) return;
-    
-    setLoading(true);
-    setError('');
+      if (!canSubmit()) {
+        setShowWarnings(true);
+        return;
+      }
 
-    const result = await databaseService.saveProfile(user.uid, profile);
-    
-    if (result.success) {
-      onProfileCreated(profile);
-    } else {
-      setError(result.error || 'Failed to save profile. Please try again.');
-    }
-    
-    setLoading(false);
+      setShowWarnings(false);
+      setLoading(true);
+      setError('');
+
+      const result = await databaseService.saveProfile(user.uid, profile);
+
+      if (result.success) {
+        onProfileCreated(profile);
+      } else {
+        setError(result.error || 'Failed to save profile. Please try again.');
+      }
+
+      setLoading(false);
   };
 
   const handleSignOut = async () => {
@@ -111,7 +115,7 @@ const ProfileSetupPage = ({ user, onProfileCreated }) => {
                     <select
                           value={profile.campus}
                           onChange={(e) =>
-                            setProfile({ ...profile, campus: e.target.value })
+                           { setProfile({ ...profile, campus: e.target.value });setShowWarnings(true);}
                           }
                           className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:outline-none transition-all"
                     >
@@ -119,6 +123,10 @@ const ProfileSetupPage = ({ user, onProfileCreated }) => {
             <option value="62">62</option>
             <option value="128">128</option>
           </select>
+          {showWarnings && !profile.campus && (
+  <p className="text-red-600 text-sm mt-1">Select your campus.</p>
+)}
+
               </div>
             </div>
 
@@ -130,25 +138,34 @@ const ProfileSetupPage = ({ user, onProfileCreated }) => {
                     value={profile.phone}
                     onChange={(e) => {
                       const v = e.target.value;
-                      if (/^\d{0,10}$/.test(v)) {
-                        setProfile({ ...profile, phone: v });
-                      }
-                    }}
+                        setProfile({ ...profile, phone: v });setShowWarnings(true);}}             
                     className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:outline-none transition-all"
                     placeholder="9876543210"
                   />
-
+                   {/* Warning MUST be inside same DIV */}
+    {showWarnings && profile.phone.length !== 10 && (
+      <p className="text-red-600 text-sm mt-1">
+        Phone must be 10 digits.
+      </p>
+    )}
               </div>
+                
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Email</label>
                 <input
                   type="email"
                   value={profile.email}
-                  onChange={(e) => setProfile({...profile, email: e.target.value})}
+                  onChange={(e) => {setProfile({...profile, email: e.target.value});setShowWarnings(true);}}
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:outline-none transition-all"
                   placeholder="your.email@mail.jiit.ac.in"
                 />
+                {showWarnings && !/\S+@\S+\.\S+/.test(profile.email) && (
+      <p className="text-red-600 text-sm mt-1">
+        Enter a valid email.
+      </p>
+    )} 
               </div>
+              
             </div>
 
             <div className="grid md:grid-cols-2 gap-4">
@@ -178,6 +195,10 @@ const ProfileSetupPage = ({ user, onProfileCreated }) => {
                   <option>IT</option>
                   <option>ECE</option>
                   <option>BioTech</option>
+                  <option>ECS</option>
+                  <option>VLSI</option>
+                  <option>ACT</option>
+                  <option>MnC</option>
                   <option>Other</option>
                 </select>
 
