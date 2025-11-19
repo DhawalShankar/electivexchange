@@ -1,34 +1,42 @@
 // src/services/matchingService.js
 
 export const matchingService = {
-  // Find students who match the user's criteria
   findMatches: (userProfile, allStudents) => {
     if (!userProfile.currentElective || userProfile.wantedElectives.length === 0) {
       return [];
     }
 
-    // Filter students who:
-    // 1. Have what the user wants
-    // 2. Want what the user has
-    const matched = allStudents.filter(student => 
-      userProfile.wantedElectives.includes(student.currentElective) &&
-      student.wantedElectives.includes(userProfile.currentElective)
-    );
+    const normalize = (s) => (s || "").toString().trim().toLowerCase();
 
-    // Sort by user's priority (index in wantedElectives array)
+    const userCampus = normalize(userProfile.campus);
+    const userHas = normalize(userProfile.currentElective);
+    const userWants = userProfile.wantedElectives.map(normalize);
+
+    const matched = allStudents.filter(student => {
+      const stuCampus = normalize(student.campus);
+      const stuHas = normalize(student.currentElective);
+      const stuWants = (student.wantedElectives || []).map(normalize);
+
+      return (
+        stuCampus === userCampus &&     // campus match
+        userWants.includes(stuHas) &&   // user wants student's elective
+        stuWants.includes(userHas)      // student wants user's elective
+      );
+    });
+
     return matched.sort((a, b) => {
-      const aPriority = userProfile.wantedElectives.indexOf(a.currentElective);
-      const bPriority = userProfile.wantedElectives.indexOf(b.currentElective);
+      const aPriority = userWants.indexOf(normalize(a.currentElective));
+      const bPriority = userWants.indexOf(normalize(b.currentElective));
       return aPriority - bPriority;
     });
   },
 
-  // Get priority index for a student's elective
   getPriorityIndex: (userProfile, studentElective) => {
-    return userProfile.wantedElectives.indexOf(studentElective);
+    const normalize = (s) => (s || "").toString().trim().toLowerCase();
+    const wants = userProfile.wantedElectives.map(normalize);
+    return wants.indexOf(normalize(studentElective));
   },
 
-  // Get color for priority badge
   getPriorityColor: (priority) => {
     if (priority === 0) return 'from-yellow-400 to-orange-500';
     if (priority === 1) return 'from-blue-400 to-indigo-500';

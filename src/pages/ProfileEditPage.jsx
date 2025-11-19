@@ -21,6 +21,7 @@ const ProfileEditPage = ({ user, existingProfile, onProfileUpdated, onCancel }) 
   return (
     profile.name &&
     profile.enrollment &&
+    profile.campus &&
     phoneValid &&
     emailValid &&
     profile.currentElective &&
@@ -74,7 +75,7 @@ const ProfileEditPage = ({ user, existingProfile, onProfileUpdated, onCancel }) 
 
           <div className="space-y-6">
             {/* Basic Info */}
-            <div className="grid md:grid-cols-2 gap-4">
+            <div className="grid md:grid-cols-3 gap-2">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Full Name *</label>
                 <input
@@ -94,6 +95,18 @@ const ProfileEditPage = ({ user, existingProfile, onProfileUpdated, onCancel }) 
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:outline-none transition-all"
                   placeholder="23102012"
                 />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Semester</label>
+                <select
+                  value={profile.campus}
+                  onChange={(e) => setProfile({...profile, campus: e.target.value})}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:outline-none transition-all"
+                >
+            <option value="">Select</option>
+            <option value="62">62</option>
+            <option value="128">128</option>
+                </select>
               </div>
             </div>
 
